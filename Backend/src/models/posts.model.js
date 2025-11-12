@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { models } from "../utils/constant.js";
 
 const postSchema = new mongoose.Schema({
   caption: {
@@ -11,19 +12,19 @@ const postSchema = new mongoose.Schema({
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: models.USER,
     required: true,
   },
   likes: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: models.USER,
     },
 ],
 comments:[
     {
         type: mongoose.Schema.Types.ObjectId,
-        ref:'Comment'
+        ref:models.COMMENT
     }
   ]
 },{ timestamps: true });

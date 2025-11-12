@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { models } from "../utils/constant.js";
 
 const commentSchema = new mongoose.Schema({
   text: {
@@ -7,14 +8,14 @@ const commentSchema = new mongoose.Schema({
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: models.USER,
   },
   post: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Post",
+    ref: models.POST,
     required: true,
   },
 }, { timestamps: true });
 
-const Comment = mongoose.model("Comment", commentSchema);
+const Comment = mongoose.model(models.COMMENT, commentSchema);
 export default Comment;

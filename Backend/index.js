@@ -6,16 +6,17 @@ import ConnectDB from "./src/config/db.js";
 dotenv.config({ quiet: true });
 
 import allRoutes from "./src/routes/index.js";
+import { serverConfig } from "./src/utils/constant.js";
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = serverConfig.PORT;
 
 // middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
 const corsOption = {
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin: serverConfig.FRONTEND_URL || "http://localhost:5173",
   credentials: true,
 };
 app.use(cors(corsOption));

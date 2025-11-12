@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { models } from "../utils/constant.js";
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -30,27 +31,27 @@ const userSchema = new mongoose.Schema({
   followers: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: models.USER,
     },
   ],
   following: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: models.USER,
     },
   ],
   posts:[{
     type:mongoose.Schema.Types.ObjectId,
-    ref:'Post'
+    ref:models.POST
   }],
   bookmarks:[
     {
         type:mongoose.Schema.Types.ObjectId,
-        ref:"Bookmarks"
+        ref:models.BOOKMARKS
     }
   ]
 }, { timestamps: true })
 
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model(models.USER, userSchema);
 export default User;

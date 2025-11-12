@@ -1,13 +1,14 @@
 import mongoose from 'mongoose';
+import { models } from "../utils/constant.js";
 
 const messageSchema = new mongoose.Schema({
     senderId :{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'User',   
+        ref:models.USER,   
     },
     receiverId :{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'User',   
+        ref:models.USER,   
     },
     message:{
         type:String,
@@ -15,5 +16,5 @@ const messageSchema = new mongoose.Schema({
     },
 },{ timestamps: true });
 
-const Message = mongoose.model('Message',messageSchema);
+const Message = mongoose.model(models.MESSAGE,messageSchema);
 export default Message;
