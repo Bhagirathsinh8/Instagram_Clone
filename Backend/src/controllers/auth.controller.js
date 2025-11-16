@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { serverConfig } from "../utils/constant.js";
 
 //Register User
 export const register = async (req, res) => {
@@ -13,7 +14,7 @@ export const register = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).lean();
 
     if (user) {
       return res.status(409).json({
@@ -22,7 +23,7 @@ export const register = async (req, res) => {
       });
     }
 
-    const saltValue = await bcrypt.genSalt(13);
+    const saltValue = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, saltValue);
     const newUser = await User.create({
       username,
@@ -71,10 +72,15 @@ export const login = async (req, res) => {
       });
     }
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      process.env.JWT_SECRET_KEY,
+      { id: user._id, email: user.email },
+      serverConfig.JWT_SECRET_KEY,
       { expiresIn: "30d" }
     );
+
+    // Remove password before sending response
+    const { password: _, ...safeUser } = user.toObject();
+
+   
     // Set cookie + Send response
     return res
       .status(200)
@@ -87,7 +93,7 @@ export const login = async (req, res) => {
     .json({
         status: true,
         message: "User login successful",
-        data: {token,user},
+        data: {token,user:safeUser},
       });
   } catch (error) {
     console.log(error);
