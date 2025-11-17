@@ -50,16 +50,20 @@ export const login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         status: false,
-        message: "Please Provide all fields",
+        message: "Please provide both email and password",
       });
     }
 
-    let user = await User.findOne({ email });
+    // Don't use lean()
+    const user = await User.findOne({ email })
+    .populate("posts")
+    .populate('following','username')
+    .populate('followers','username');
 
     if (!user) {
       return res.status(404).json({
         status: false,
-        message: "User Not Found",
+        message: "User not found",
       });
     }
 
@@ -68,37 +72,40 @@ export const login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         status: false,
-        message: "Invalid Credentials",
+        message: "Invalid credentials",
       });
     }
+
     const token = jwt.sign(
       { id: user._id, email: user.email },
       serverConfig.JWT_SECRET_KEY,
       { expiresIn: "30d" }
     );
 
-    // Remove password before sending response
-    const { password: _, ...safeUser } = user.toObject();
+    // Convert user document to object and remove password
+    const safeUser = user.toObject();
+    delete safeUser.password;
 
-   
-    // Set cookie + Send response
     return res
       .status(200)
       .cookie("token", token, {
         httpOnly: true,
         sameSite: "strict",
-        secure: process.env.NODE_ENV === "production", // ✅ use secure cookies in prod
+        secure: process.env.NODE_ENV === "production",
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       })
-    .json({
+      .json({
         status: true,
         message: "User login successful",
-        data: {token,user:safeUser},
+        data: { token, user: safeUser },
       });
+
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ status: false, message: "Server error" });
   }
 };
+
 
 //Logout User 
 export const logout = (_,res) =>{
