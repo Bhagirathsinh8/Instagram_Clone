@@ -9,7 +9,7 @@ const conversationSchema = new mongoose.Schema(
         ref: models.USER,
       },
     ],
-    message: [
+    messages: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: models.MESSAGE,
