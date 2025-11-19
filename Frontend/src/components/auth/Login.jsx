@@ -4,13 +4,16 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Loader2 } from "lucide-react";
 import axios from "axios";
+import { toast } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
-  let loading = false;
   const [input, setInput] = useState({
     email: "test@user.com",
     password: "test123",
   });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -19,6 +22,7 @@ function Login() {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
       const res = await axios.post(
         "http://localhost:5000/api/auth/login",
         input
@@ -29,11 +33,14 @@ function Login() {
 
       if (res.data.success) {
         localStorage.setItem("token", token);
-        alert(res.data.message);
-        alert(`Login Successfully ${user.username}`);
+        toast.success(`Login Successfully ${user.username}`);
+        navigate('/');
       }
     } catch (error) {
       console.log(error);
+      toast.error(error.response?.data?.message);
+    } finally{
+      setLoading(false);
     }
   };
 
@@ -50,8 +57,8 @@ function Login() {
             <img
               src="https://img.freepik.com/premium-vector/instagram-vector-social-media-icon_459124-558.jpg?semt=ais_hybrid&w=740&q=80"
               alt=""
-              height={90}
-              width={90}
+              height={80}
+              width={80}
             />
           </div>
           <h1 className="text-center font-bold text-2xl mb-3">Login</h1>
@@ -90,6 +97,8 @@ function Login() {
             Login
           </Button>
         )}
+
+      <span className="text-center">Don't have an account? <Link to={'/signup'} className="text-blue-600">Signup here</Link></span>
       </form>
     </div>
   );
