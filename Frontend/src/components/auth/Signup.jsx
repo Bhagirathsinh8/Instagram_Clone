@@ -1,16 +1,49 @@
-import React from "react";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Loader2, LoaderCircleIcon } from "lucide-react";
+import React, { useState } from "react";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Loader2 } from "lucide-react";
+import axios from "axios";
 
 function Signup() {
-  const loading = true;
+  const [input, setInput] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+  let loading = false;
+
+  const changeEventHandler = (e) => {
+    setInput({ ...input, [e.target.name]: e.target.value });
+  };
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/register",
+        input
+      );
+
+      if (res.data.success) {
+        alert(res.data.message);
+        setInput({
+          username: "",
+          email: "",
+          password: "",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="flex items-center w-screen h-screen justify-center">
       <form
         action=""
         className="shadow-lg flex flex-col gap-5 p-5 mt-1 border rounded-lg"
+        onSubmit={submitHandler}
       >
         <div className="my-4">
           {/* <h1 className='text-center'>LOGO</h1> */}
@@ -23,7 +56,9 @@ function Signup() {
             />
           </div>
           <h1 className="text-center font-bold text-2xl mb-3">Signup</h1>
-          <p className="text-center">Signup to see photos and videos from your friends</p>
+          <p className="text-center">
+            Signup to see photos and videos from your friends
+          </p>
         </div>
 
         <div>
@@ -31,22 +66,28 @@ function Signup() {
           <Input
             type="text"
             name="username"
+            value={input.username}
+            onChange={changeEventHandler}
             className="my-2 focus-visible:ring-transparent"
           />
         </div>
         <div>
           <Label>Email</Label>
           <Input
-            type="text"
-            name="username"
+            type="email"
+            name="email"
+            value={input.email}
+            onChange={changeEventHandler}
             className="my-2 focus-visible:ring-transparent"
           />
         </div>
         <div>
           <Label>Password</Label>
           <Input
-            type="text"
-            name="username"
+            type="password"
+            name="password"
+            value={input.password}
+            onChange={changeEventHandler}
             className="my-2 focus-visible:ring-transparent"
           />
         </div>
@@ -61,7 +102,6 @@ function Signup() {
             Signup
           </Button>
         )}
-
       </form>
     </div>
   );

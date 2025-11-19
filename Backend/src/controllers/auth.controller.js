@@ -56,13 +56,14 @@ export const login = async (req, res) => {
 
     // Don't use lean()
     const user = await User.findOne({ email })
-    .populate("posts")
-    .populate('following','username')
-    .populate('followers','username');
+      .populate("posts")
+      .populate("following", "username")
+      .populate("followers", "username");
 
     if (!user) {
       return res.status(404).json({
-        status: false,
+        status: 0,
+        success: false,
         message: "User not found",
       });
     }
@@ -71,7 +72,8 @@ export const login = async (req, res) => {
 
     if (!isMatch) {
       return res.status(401).json({
-        status: false,
+        status: 0,
+        success: false,
         message: "Invalid credentials",
       });
     }
@@ -95,27 +97,26 @@ export const login = async (req, res) => {
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       })
       .json({
-        status: true,
+        status: 1,
+        success: true,
         message: "User login successful",
         data: { token, user: safeUser },
       });
-
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ status: false, message: "Server error" });
+    return res.status(500).json({ status: 0,success:false, message: "Server error" });
   }
 };
 
-
-//Logout User 
-export const logout = (_,res) =>{
-    try {
-            return res.status(200).cookie("token","",{maxAge:0}).json({
-                status:1,
-                message:"logout SuccessFully"
-            })
-    } catch (error) {
-        console.log(error)
-    }
-}
-
+//Logout User
+export const logout = (_, res) => {
+  try {
+    return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+      status: 1,
+      success: true,
+      message: "logout SuccessFully",
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};

@@ -1,12 +1,11 @@
-import './App.css'
-import Signup from './components/Signup'
+import "./App.css";
+import Home from "./pages/Home";
 function App() {
-
   return (
     <>
-    <Signup/>
+      <Home />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
