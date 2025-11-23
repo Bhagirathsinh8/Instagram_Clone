@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import TempPhoto from "../assets/tempCarphoto.avif";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -7,6 +7,22 @@ import { MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 
 const CommentDialog = ({ open, setOpen }) => {
+
+  const [text,setText] =useState("");
+
+    const changeEventHandler = (e) =>{
+    const inputText = e.target.value;
+
+    if(inputText.trim()){
+      setText(inputText);
+    } else{
+      setText("")
+    }
+  }
+  const sendMessageHandler = () =>{
+    alert(text);
+    setText("")
+  }
   return (
     <Dialog open={open}>
       <DialogContent
@@ -63,9 +79,11 @@ const CommentDialog = ({ open, setOpen }) => {
             <div className="p-4">
                 <div className="flex items-center gap-2">
                   <input type="text" placeholder="Add Commments..." 
+                    onChange={changeEventHandler}
+                    value={text}
                     className="w-full outline-none border border-gray-300 p-2 rounded"
                   />
-                  <Button variant="outline">Send</Button>
+                  <Button disabled={!text.trim()} variant="outline" onClick={sendMessageHandler}>Send</Button>
                 </div>
              </div>
           </div>
