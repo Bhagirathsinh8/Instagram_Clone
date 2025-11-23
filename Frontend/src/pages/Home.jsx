@@ -1,11 +1,18 @@
-import React from 'react'
+import Feed from "@/components/Feed";
+import RightSidebar from "@/components/RightSidebar";
+import React from "react";
+import { Outlet } from "react-router-dom";
 
 function Home() {
   return (
-    <div>
-      <h1>Home PAGE</h1>
+    <div className="flex">
+      <div className="flex-grow">
+        <Feed />
+        <Outlet />
+      </div>
+       <RightSidebar/>
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;
