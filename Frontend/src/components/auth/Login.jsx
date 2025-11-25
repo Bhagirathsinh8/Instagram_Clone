@@ -28,7 +28,13 @@ function Login() {
       setLoading(true);
       const res = await axios.post(
         "http://localhost:5000/api/auth/login",
-        input
+        input,
+        {
+          headers:{
+            "Content-Type":"application/json"
+          },
+          withCredentials:true
+        }
       );
 
       const token = res.data.data.token;

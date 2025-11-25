@@ -92,8 +92,9 @@ export const login = async (req, res) => {
       .status(200)
       .cookie("token", token, {
         httpOnly: true,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        secure: false,
+        path: "/",
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       })
       .json({
@@ -104,7 +105,9 @@ export const login = async (req, res) => {
       });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ status: 0,success:false, message: "Server error" });
+    return res
+      .status(500)
+      .json({ status: 0, success: false, message: "Server error" });
   }
 };
 

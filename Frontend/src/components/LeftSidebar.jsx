@@ -7,17 +7,23 @@ import {
   Search,
   TrendingUp,
 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { toast } from "sonner";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setAuthUser } from "@/redux/authSlice";
+import CreatePost from "./CreatePost";
 
 
 function LeftSidebar() {
   const navigate = useNavigate();
   const {user} = useSelector(store => store.auth);
+  const dispatch = useDispatch();
+  const [open,setOpen] = useState(false);
+
+
 
   const logoutHandler = async () => {
     try {
@@ -27,6 +33,8 @@ function LeftSidebar() {
 
       if (res.data.success) {
         navigate("/login");
+        dispatch(setAuthUser(null));
+        localStorage.clear("token");
         toast.success(res.data.message);
       }
     } catch (error) {
@@ -34,8 +42,16 @@ function LeftSidebar() {
     }
   };
 
+
+
+
   const sidebarHandler = (textType) => {
-    if (textType === "Logout") logoutHandler();
+    if (textType === "Logout"){
+      logoutHandler();
+    } else if (textType === "Create"){
+      setOpen(true);
+    }
+
   };
 
   const sidebarItems = [
@@ -85,6 +101,7 @@ function LeftSidebar() {
             ))}
           </div>
         </div>
+        <CreatePost open={open} setOpen={setOpen}/>
       </div>
 
       {/* MOBILE BOTTOM NAVBAR */}

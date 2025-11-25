@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 
-const CommentDialog = ({ open, setOpen }) => {
+const CommentDialog = ({ open, setOpen ,post}) => {
 
   const [text,setText] =useState("");
 
@@ -34,7 +34,7 @@ const CommentDialog = ({ open, setOpen }) => {
         <div className="flex flex-1 gap-3 ">
           <div className="w-1/2">
             <img
-              src={TempPhoto}
+              src={post.image}
               alt="postImg"
               className="w-full h-full object-cover rounded-l-lg"
             />
@@ -45,13 +45,13 @@ const CommentDialog = ({ open, setOpen }) => {
               <div className="flex gap-3 items-center">
                 <Link>
                   <Avatar>
-                    <AvatarImage src="" />
+                    <AvatarImage src={post.author?.profilePhoto}/>
                     <AvatarFallback>BN</AvatarFallback>
                   </Avatar>
                 </Link>
                 <div className="flex flex-col">
 
-                  <Link className="font-semibold text-sm">Bhagirath_nakum_13</Link>
+                  <Link className="font-semibold text-sm">{post.author?.username}</Link>
                   <span className="text-gray-600 text-xs">Good</span>
                 </div>
               </div>
