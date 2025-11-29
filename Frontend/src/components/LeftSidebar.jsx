@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from "@/redux/authSlice";
 import CreatePost from "./CreatePost";
+import { setPosts, setSelectedPost } from "@/redux/postSlice";
 
 
 function LeftSidebar() {
@@ -34,6 +35,8 @@ function LeftSidebar() {
       if (res.data.success) {
         navigate("/login");
         dispatch(setAuthUser(null));
+        dispatch(setSelectedPost(null));
+        dispatch(setPosts([]));
         localStorage.clear("token");
         toast.success(res.data.message);
       }

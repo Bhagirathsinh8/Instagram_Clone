@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
@@ -14,7 +14,10 @@ function Login() {
     email: "test@user.com",
     password: "test123",
   });
+
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -30,10 +33,10 @@ function Login() {
         "http://localhost:5000/api/auth/login",
         input,
         {
-          headers:{
-            "Content-Type":"application/json"
+          headers: {
+            "Content-Type": "application/json",
           },
-          withCredentials:true
+          withCredentials: true,
         }
       );
 
@@ -43,13 +46,13 @@ function Login() {
       if (res.data.success) {
         localStorage.setItem("token", token);
         toast.success(`Login Successfully ${user.username}`);
-        navigate('/');
+        navigate("/");
         dispatch(setAuthUser(user));
       }
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message);
-    } finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -57,12 +60,10 @@ function Login() {
   return (
     <div className="flex items-center w-screen h-screen justify-center">
       <form
-        action=""
         className="shadow-lg flex flex-col gap-5 p-5 mt-1 border rounded-lg"
         onSubmit={submitHandler}
       >
         <div className="my-4">
-          {/* <h1 className='text-center'>LOGO</h1> */}
           <div className="flex items-center justify-center w-full mb-3 p-5 bg-gray-100">
             <img
               src="https://img.freepik.com/premium-vector/instagram-vector-social-media-icon_459124-558.jpg?semt=ais_hybrid&w=740&q=80"
@@ -71,11 +72,12 @@ function Login() {
               width={80}
             />
           </div>
+
           <h1 className="text-center font-bold text-2xl mb-3">Login</h1>
-          <p className="text-center">
-            explore the feed and connect with friends
-          </p>
+          <p className="text-center">explore the feed and connect with friends</p>
         </div>
+
+        {/* Email */}
         <div>
           <Label>Email</Label>
           <Input
@@ -86,17 +88,30 @@ function Login() {
             className="my-2 focus-visible:ring-transparent"
           />
         </div>
+
+        {/* Password with visibility toggle */}
         <div>
           <Label>Password</Label>
-          <Input
-            type="password"
-            name="password"
-            value={input.password}
-            onChange={changeEventHandler}
-            className="my-2 focus-visible:ring-transparent"
-          />
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={input.password}
+              onChange={changeEventHandler}
+              className="my-2 focus-visible:ring-transparent pr-10"
+            />
+
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
         </div>
 
+        {/* Submit Button */}
         {loading ? (
           <Button className="w-full my-4">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -108,7 +123,12 @@ function Login() {
           </Button>
         )}
 
-      <span className="text-center">Don't have an account? <Link to={'/signup'} className="text-blue-600">Signup here</Link></span>
+        <span className="text-center">
+          Don't have an account?
+          <Link to={"/signup"} className="text-blue-600 ml-1">
+            Signup here
+          </Link>
+        </span>
       </form>
     </div>
   );

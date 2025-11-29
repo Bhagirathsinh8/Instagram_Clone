@@ -8,24 +8,26 @@ import CommentDialog from "./CommentDialog";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import axios from "axios";
-import { setPosts } from "@/redux/postSlice";
+import { setPosts, setSelectedPost } from "@/redux/postSlice";
 
 const Post = ({ post }) => {
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
+
   const { user } = useSelector((store) => store.auth);
   const { posts } = useSelector((store) => store.post);
+
   const dispatch = useDispatch();
-  const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
+
+  const [liked, setLiked] = useState(post.likes.includes(user?._id));
   const [postLike, setPostLike] = useState(post.likes.length);
+
+  const updatedPost = posts.find((p) => p._id === post._id) || post;
+  const comment = updatedPost.comments; // always fresh from Redux
+
   const changeEventHandler = (e) => {
     const inputText = e.target.value;
-
-    if (inputText.trim()) {
-      setText(inputText);
-    } else {
-      setText("");
-    }
+    setText(inputText.trim() ? inputText : "");
   };
 
   const deletePostHandler = async () => {
@@ -43,7 +45,7 @@ const Post = ({ post }) => {
         toast.success(res.data.message);
       }
     } catch (error) {
-      toast.error(error.responce?.data?.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -56,14 +58,11 @@ const Post = ({ post }) => {
         { withCredentials: true }
       );
 
-      console.log(res);
-
       if (res.data.success) {
         const updatedLike = liked ? postLike - 1 : postLike + 1;
         setPostLike(updatedLike);
         setLiked(!liked);
 
-        //Real time update
         const updatedPostData = posts.map((p) =>
           p._id === post._id
             ? {
@@ -78,9 +77,41 @@ const Post = ({ post }) => {
         toast.success(res.data.message);
       }
     } catch (error) {
-      toast.error(error.responce?.data?.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
+
+  // 👉 FIXED COMMENT HANDLER
+  const commentHandler = async () => {
+    if (!text.trim()) return toast.error("Comment cannot be empty");
+
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/api/post/comment/${post._id}`,
+        { text },
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        const newComment = res.data.data.comment;
+
+        // Update Redux store only
+        const updatedPostData = posts.map((p) =>
+          p._id === post._id
+            ? { ...p, comments: [...p.comments, newComment] }
+            : p
+        );
+
+        dispatch(setPosts(updatedPostData));
+
+        setText("");
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  };
+
   return (
     <div className="my-8 w-full max-w-sm mx-auto">
       <div className="flex items-center justify-between">
@@ -91,6 +122,7 @@ const Post = ({ post }) => {
           </Avatar>
           <h1>{post.author?.username}</h1>
         </div>
+
         <Dialog>
           <DialogTrigger asChild>
             <MoreHorizontal className="cursor-pointer" />
@@ -108,6 +140,7 @@ const Post = ({ post }) => {
             <Button variant="ghost" className="cursor-pointer w-fit ">
               Add to Favourites
             </Button>
+
             {user && user._id === post?.author?._id && (
               <Button
                 variant="ghost"
@@ -120,17 +153,21 @@ const Post = ({ post }) => {
           </DialogContent>
         </Dialog>
       </div>
+
       <img
         className="rounded-md my-2 w-full aspect-square object-cover"
         src={post.image}
-        // src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         alt="postImage"
       />
 
       <div className="flex items-center justify-between my-2">
         <div className="flex items-center gap-3">
           {liked ? (
-            <FaHeart size={"22px"} className="cursor-pointer text-red-600" onClick={likeOrDislikeHandler} />
+            <FaHeart
+              size={"22px"}
+              className="cursor-pointer text-red-600"
+              onClick={likeOrDislikeHandler}
+            />
           ) : (
             <FaRegHeart
               size={"22px"}
@@ -141,28 +178,37 @@ const Post = ({ post }) => {
 
           <MessageCircle
             onClick={() => {
+              dispatch(setSelectedPost(post));
               setOpen(true);
             }}
             className="cursor-pointer hover:text-gray-600"
           />
           <Send className="cursor-pointer hover:text-gray-600" />
         </div>
+
         <Bookmark className="cursor-pointer hover:text-gray-600" />
       </div>
+
       <span className="font-normal block mb-2 ">{postLike} likes</span>
+
       <p>
         <span className="font-medium mr-2">{post.author?.username}</span>
         {post?.caption}
       </p>
-      <span
-        onClick={() => {
-          setOpen(true);
-        }}
-        className="cursor-pointer text-sm text-gray-400"
-      >
-        view all {post.comments.length} Comments
-      </span>
-      <CommentDialog open={open} setOpen={setOpen} post={post} />
+
+      {comment.length > 0 && (
+        <span
+          onClick={() => {
+            dispatch(setSelectedPost(post));
+            setOpen(true);
+          }}
+          className="cursor-pointer text-sm text-gray-400"
+        >
+          view all {comment.length} Comments
+        </span>
+      )}
+
+      <CommentDialog open={open} setOpen={setOpen} />
 
       <div className="flex items-center justify-between gap-4">
         <input
@@ -170,9 +216,20 @@ const Post = ({ post }) => {
           placeholder="Add a comment..."
           value={text}
           onChange={changeEventHandler}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              if (text.trim()) commentHandler();
+            }
+          }}
           className="outline-none text-sm w-full"
         />
-        {text && <span className="text-[#3BADF8]">Post</span>}
+
+        {text && (
+          <span className="text-[#3BADF8]" onClick={commentHandler}>
+            Post
+          </span>
+        )}
       </div>
     </div>
   );

@@ -1,14 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
-import TempPhoto from "../assets/tempCarphoto.avif";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Link } from "react-router-dom";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
+import { useDispatch, useSelector } from "react-redux";
+import Comment from "./Comment";
+import axios from "axios";
+import { setPosts } from "@/redux/postSlice";
+import Posts from "./Posts";
+import { toast } from "sonner";
 
-const CommentDialog = ({ open, setOpen ,post}) => {
+const CommentDialog = ({ open, setOpen }) => {
 
   const [text,setText] =useState("");
+  const {selectedPost,posts} = useSelector(store => store.post);
+  // const [comment,setComment] =useState(selectedPost?.comments);
+  const [comment,setComment] = useState([]);;
+  const dispatch = useDispatch();
+
+    useEffect(() => {
+    if (selectedPost) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setComment(selectedPost.comments);
+    }
+  }, [selectedPost]);
+
 
     const changeEventHandler = (e) =>{
     const inputText = e.target.value;
@@ -19,10 +36,38 @@ const CommentDialog = ({ open, setOpen ,post}) => {
       setText("")
     }
   }
-  const sendMessageHandler = () =>{
-    alert(text);
-    setText("")
-  }
+
+
+  const sendMessageHandler = async () => {
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/api/post/comment/${selectedPost._id}`,
+        { text },
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        const newComment = res.data.data.comment;
+
+        // Update local state
+        const updatedCommentData = [...comment, newComment];
+        setComment(updatedCommentData);
+
+        // Update Redux store
+        const updatedPostData = posts.map((p) =>
+          p._id === selectedPost._id ? { ...p, comments: updatedCommentData } : p
+        );
+
+        dispatch(setPosts(updatedPostData));
+
+        setText("");
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  };
+
   return (
     <Dialog open={open}>
       <DialogContent
@@ -34,7 +79,7 @@ const CommentDialog = ({ open, setOpen ,post}) => {
         <div className="flex flex-1 gap-3 ">
           <div className="w-1/2">
             <img
-              src={post.image}
+              src={selectedPost?.image}
               alt="postImg"
               className="w-full h-full object-cover rounded-l-lg"
             />
@@ -45,13 +90,13 @@ const CommentDialog = ({ open, setOpen ,post}) => {
               <div className="flex gap-3 items-center">
                 <Link>
                   <Avatar>
-                    <AvatarImage src={post.author?.profilePhoto}/>
+                    <AvatarImage src={selectedPost?.author?.profilePhoto}/>
                     <AvatarFallback>BN</AvatarFallback>
                   </Avatar>
                 </Link>
                 <div className="flex flex-col">
 
-                  <Link className="font-semibold text-sm">{post.author?.username}</Link>
+                  <Link className="font-semibold text-sm">{selectedPost?.author?.username}</Link>
                   <span className="text-gray-600 text-xs">Good</span>
                 </div>
               </div>
@@ -71,10 +116,11 @@ const CommentDialog = ({ open, setOpen ,post}) => {
             </div>
             <hr/>
             <div className="flex-1 overflow-y-auto max-h-96 p-4">
-              All Comments 
-              All Comments <br/>
-              All Comments 
-              All Comments  
+              {
+                  comment.map((c)=>{
+                  return <Comment key={c?._id} comment={c}/>
+                })
+              } 
             </div>
             <div className="p-4">
                 <div className="flex items-center gap-2">
@@ -94,3 +140,4 @@ const CommentDialog = ({ open, setOpen ,post}) => {
 };
 
 export default CommentDialog;
+
