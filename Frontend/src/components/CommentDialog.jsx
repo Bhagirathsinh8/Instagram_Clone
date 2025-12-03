@@ -10,12 +10,13 @@ import axios from "axios";
 import { setPosts } from "@/redux/postSlice";
 import Posts from "./Posts";
 import { toast } from "sonner";
+import { Badge } from "./ui/badge";
 
 const CommentDialog = ({ open, setOpen }) => {
 
   const [text,setText] =useState("");
   const {selectedPost,posts} = useSelector(store => store.post);
-  // const [comment,setComment] =useState(selectedPost?.comments);
+  const {user} = useSelector(store => store.auth);
   const [comment,setComment] = useState([]);;
   const dispatch = useDispatch();
 
@@ -99,6 +100,9 @@ const CommentDialog = ({ open, setOpen }) => {
                   <Link className="font-semibold text-sm">{selectedPost?.author?.username}</Link>
                   <span className="text-gray-600 text-xs">Good</span>
                 </div>
+                  <div className="flex items-center gap-4 ">
+            { user._id === selectedPost?.author?._id && <Badge variant={"secondary"}>Author</Badge> }
+          </div>
               </div>
               <Dialog>
                 <DialogTrigger asChild>

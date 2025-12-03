@@ -6,7 +6,7 @@ import getDataUri from "../utils/datauri.js";
 export const getProfile = async (req, res) => {
   try {
     const userId = req.params.id;
-    let user = await User.findById(userId).select('-password');
+    let user = await User.findById(userId).select('-password').populate("posts").lean();
 
     return res
       .status(200)
