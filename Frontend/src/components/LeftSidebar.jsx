@@ -76,7 +76,7 @@ function LeftSidebar() {
       icons: (
         <Avatar className="w-8 h-8">
           <AvatarImage
-            src={user?.profilePicture || "https://github.com/shadcn.png"}
+            src={user?.profilePhoto || "https://github.com/shadcn.png"}
           />
           <AvatarFallback>U</AvatarFallback>
         </Avatar>
