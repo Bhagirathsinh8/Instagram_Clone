@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setAuthUser } from "@/redux/authSlice";
+import { PATH, ROUTES } from "@/utils/constant";
+
 
 function Login() {
   const [input, setInput] = useState({
@@ -30,7 +32,7 @@ function Login() {
     try {
       setLoading(true);
       const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        ROUTES.LOGIN_ENDPOINT,
         input,
         {
           headers: {
@@ -46,7 +48,7 @@ function Login() {
       if (res.data.success) {
         localStorage.setItem("token", token);
         toast.success(`Login Successfully ${user.username}`);
-        navigate("/");
+        navigate(PATH.HOME);
         dispatch(setAuthUser(user));
       }
     } catch (error) {
@@ -125,7 +127,7 @@ function Login() {
 
         <span className="text-center">
           Don't have an account?
-          <Link to={"/signup"} className="text-blue-600 ml-1">
+          <Link to={PATH.SIGNUP} className="text-blue-600 ml-1">
             Signup here
           </Link>
         </span>

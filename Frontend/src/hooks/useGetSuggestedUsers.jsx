@@ -1,4 +1,5 @@
-import { setSuggestedUsers } from "@/redux/authSlice";
+import { setLoading, setSuggestedUsers } from "@/redux/authSlice";
+import { ROUTES } from "@/utils/constant";
 import axios from "axios"
 import { useEffect } from "react"
 import { useDispatch } from "react-redux";
@@ -8,7 +9,8 @@ const useGetSuggestedUsers = () =>{
     useEffect(()=>{
         const fetchSuggestedUsers = async () =>{
             try {
-                const res = await axios.get("http://localhost:5000/api/user/suggested",{withCredentials:true});
+                dispatch(setLoading(true))
+                const res = await axios.get(ROUTES.SUGGESTED_USERS,{withCredentials:true});
 
                 if(res.data.success){
                     dispatch(setSuggestedUsers(res.data.data));
@@ -16,6 +18,10 @@ const useGetSuggestedUsers = () =>{
 
             } catch (error) {
                 console.log(error);
+            } finally {
+                setTimeout(()=>{
+                    dispatch(setLoading(false));
+                },500);
             }
         }
         fetchSuggestedUsers();

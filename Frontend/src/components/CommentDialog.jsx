@@ -11,6 +11,7 @@ import { setPosts } from "@/redux/postSlice";
 import Posts from "./Posts";
 import { toast } from "sonner";
 import { Badge } from "./ui/badge";
+import { ROUTES } from "@/utils/constant";
 
 const CommentDialog = ({ open, setOpen }) => {
 
@@ -42,7 +43,7 @@ const CommentDialog = ({ open, setOpen }) => {
   const sendMessageHandler = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/post/comment/${selectedPost._id}`,
+        ROUTES.ADD_COMMENT(selectedPost?._id),
         { text },
         { withCredentials: true }
       );

@@ -9,6 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { setAuthUser } from '@/redux/authSlice';
+import { ROUTES } from '@/utils/constant';
 
 const EditProfile = () => {
     const imageRef = useRef();
@@ -41,7 +42,7 @@ const EditProfile = () => {
         }
         try {
             setLoading(true);
-            const res = await axios.post('http://localhost:5000/api/user/profile/edit', formData,{
+            const res = await axios.post(ROUTES.PROFILE_EDIT, formData,{
                 headers:{
                     'Content-Type':'multipart/form-data'
                 },

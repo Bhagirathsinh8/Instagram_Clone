@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setPosts } from "@/redux/postSlice";
+import { ROUTES } from "@/utils/constant";
 
 const CreatePost = ({ open, setOpen }) => {
   const imageRef = useRef();
@@ -45,7 +46,7 @@ const CreatePost = ({ open, setOpen }) => {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5000/api/post/add-post",
+        ROUTES.ADD_POST,
         formData,
         {
           headers: {

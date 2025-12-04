@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
+import { PATH, ROUTES } from "@/utils/constant";
 
 function Signup() {
   const [input, setInput] = useState({
@@ -25,7 +26,7 @@ function Signup() {
     try {
       setLoading(true);
       const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        ROUTES.SIGNUP_ENDPOINT,
         input,
         {
           headers: {
@@ -42,7 +43,7 @@ function Signup() {
           email: "",
           password: "",
         });
-        navigate('/login');
+        navigate(PATH.LOGIN);
       }
     } catch (error) {
       console.log(error);
@@ -119,7 +120,7 @@ function Signup() {
 
       <span className="text-center text-sm">
         Already have an account?{" "}
-        <Link to={"/login"} className="text-blue-600 font-medium">
+        <Link to={PATH.LOGIN} className="text-blue-600 font-medium">
           Login here
         </Link>
       </span>

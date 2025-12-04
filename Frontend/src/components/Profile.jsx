@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { AtSign, Heart, MessageCircle } from 'lucide-react';
+import { PATH } from '@/utils/constant';
 
 const Profile = () => {
   const params = useParams();
@@ -41,7 +42,7 @@ const Profile = () => {
                 {
                   isLoggedInUserProfile ? (
                     <>
-                      <Link to="/account/edit"><Button variant='secondary' className='hover:bg-gray-200 h-8'>Edit profile</Button></Link>
+                      <Link to={PATH.EDIT_PROFILE}><Button variant='secondary' className='hover:bg-gray-200 h-8'>Edit profile</Button></Link>
                       <Button variant='secondary' className='hover:bg-gray-200 h-8'>View archive</Button>
                       <Button variant='secondary' className='hover:bg-gray-200 h-8'>Ad tools</Button>
                     </>

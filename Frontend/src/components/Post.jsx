@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
 import { Badge } from "./ui/badge";
+import { ROUTES } from "@/utils/constant";
 
 const Post = ({ post }) => {
   const [text, setText] = useState("");
@@ -31,12 +32,12 @@ const Post = ({ post }) => {
     setText(inputText.trim() ? inputText : "");
   };
 
+  //Delete POST
   const deletePostHandler = async () => {
     try {
-      const res = await axios.delete(
-        `http://localhost:5000/api/post/${post._id}`,
-        { withCredentials: true }
-      );
+      const res = await axios.delete(ROUTES.DELETE_POST(post?._id), {
+        withCredentials: true,
+      });
 
       if (res.data.success) {
         const updatePostData = posts.filter(
@@ -53,8 +54,11 @@ const Post = ({ post }) => {
   const likeOrDislikeHandler = async () => {
     try {
       const action = liked ? "dislike" : "like";
+      const url = action === "like" ? ROUTES.LIKE_POST(post?._id) : ROUTES.DISLIKE_POST(post?._id);
+
       const res = await axios.put(
-        `http://localhost:5000/api/post/${action}/${post?._id}`,
+        // `http://localhost:5000/api/post/${action}/${post?._id}`,
+        url,
         {},
         { withCredentials: true }
       );
@@ -82,13 +86,13 @@ const Post = ({ post }) => {
     }
   };
 
-  // 👉 FIXED COMMENT HANDLER
+  //ADD Comment In Post
   const commentHandler = async () => {
     if (!text.trim()) return toast.error("Comment cannot be empty");
 
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/post/comment/${post._id}`,
+        ROUTES.ADD_COMMENT(post?._id),
         { text },
         { withCredentials: true }
       );
@@ -123,7 +127,9 @@ const Post = ({ post }) => {
           </Avatar>
           <div className="flex items-center gap-4">
             <h1>{post.author?.username}</h1>
-            { user._id === post.author?._id && <Badge variant={"secondary"}>Author</Badge> }
+            {user._id === post.author?._id && (
+              <Badge variant={"secondary"}>Author</Badge>
+            )}
           </div>
         </div>
 

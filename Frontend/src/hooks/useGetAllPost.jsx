@@ -1,4 +1,5 @@
 import { setLoading, setPosts } from "@/redux/postSlice";
+import { ROUTES } from "@/utils/constant";
 import axios from "axios";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -9,7 +10,7 @@ const useGetAllPost = () => {
     const fetchAllPost = async () => {
       try {
         dispatch(setLoading(true));
-        const res = await axios.get("http://localhost:5000/api/post/", {
+        const res = await axios.get(ROUTES.GET_ALL_POST, {
           withCredentials: true,
         });
 

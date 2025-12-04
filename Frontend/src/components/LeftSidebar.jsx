@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from "@/redux/authSlice";
 import CreatePost from "./CreatePost";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
+import { PATH, ROUTES } from "@/utils/constant";
 
 function LeftSidebar() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ function LeftSidebar() {
   // Logout handler
   const logoutHandler = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/auth/logout", {
+      const res = await axios.get(ROUTES.LOGOUT_ENDPOINT, {
         withCredentials: true,
       });
 
@@ -36,7 +37,7 @@ function LeftSidebar() {
         dispatch(setSelectedPost(null));
         dispatch(setPosts([]));
         localStorage.clear("token");
-        navigate("/login");
+        navigate(PATH.LOGIN);
         toast.success(res.data.message);
       }
     } catch (error) {
@@ -48,7 +49,7 @@ function LeftSidebar() {
   const sidebarHandler = (type) => {
     switch (type) {
       case "Home":
-        navigate("/");
+        navigate(PATH.HOME);
         break;
       case "Create":
         setOpen(true);
@@ -57,7 +58,7 @@ function LeftSidebar() {
         logoutHandler();
         break;
       case "Profile":
-        navigate(`/profile/${user?._id}`);
+        navigate(PATH.PROFILE(user?._id));
         break;
       default:
         break;
