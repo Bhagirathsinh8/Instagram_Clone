@@ -17,15 +17,14 @@ import { setAuthUser } from "@/redux/authSlice";
 import CreatePost from "./CreatePost";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
 
-
 function LeftSidebar() {
   const navigate = useNavigate();
-  const {user} = useSelector(store => store.auth);
   const dispatch = useDispatch();
-  const [open,setOpen] = useState(false);
+  const { user } = useSelector((store) => store.auth);
 
+  const [open, setOpen] = useState(false);
 
-
+  // Logout handler
   const logoutHandler = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/auth/logout", {
@@ -33,11 +32,11 @@ function LeftSidebar() {
       });
 
       if (res.data.success) {
-        navigate("/login");
         dispatch(setAuthUser(null));
         dispatch(setSelectedPost(null));
         dispatch(setPosts([]));
         localStorage.clear("token");
+        navigate("/login");
         toast.success(res.data.message);
       }
     } catch (error) {
@@ -45,79 +44,91 @@ function LeftSidebar() {
     }
   };
 
-
-
-
-  const sidebarHandler = (textType) => {
-    if (textType === "Logout"){
-      logoutHandler();
-    } else if (textType === "Create"){
-      setOpen(true);
-    } else if (textType === "Profile"){
-      navigate(`/profile/${user?._id}`)
-    } else if (textType === "Home"){
-      navigate("/")
+  // Sidebar item handling
+  const sidebarHandler = (type) => {
+    switch (type) {
+      case "Home":
+        navigate("/");
+        break;
+      case "Create":
+        setOpen(true);
+        break;
+      case "Logout":
+        logoutHandler();
+        break;
+      case "Profile":
+        navigate(`/profile/${user?._id}`);
+        break;
+      default:
+        break;
     }
-
   };
 
+  // Sidebar items
   const sidebarItems = [
-  { icons: <Home />, text: "Home" },
-  { icons: <Search />, text: "Search" },
-  { icons: <TrendingUp />, text: "Explore" },
-  { icons: <MessageCircle />, text: "Messages" },
-  { icons: <Heart />, text: "Notifications" },
-  { icons: <PlusSquare />, text: "Create" },
-  {
-    icons: (
-      <Avatar className="w-7 h-7">
-       <AvatarImage src={user?.profilePhoto || "https://github.com/shadcn.png"} />
-        <AvatarFallback>BN</AvatarFallback>
-      </Avatar>
-    ),
-    text: "Profile",
-  },
-  { icons: <LogOut />, text: "Logout" },
-];
+    { icons: <Home size={22} />, text: "Home" },
+    { icons: <Search size={22} />, text: "Search" },
+    { icons: <TrendingUp size={22} />, text: "Explore" },
+    { icons: <MessageCircle size={22} />, text: "Messages" },
+    { icons: <Heart size={22} />, text: "Notifications" },
+    { icons: <PlusSquare size={22} />, text: "Create" },
+    {
+      icons: (
+        <Avatar className="w-8 h-8">
+          <AvatarImage
+            src={user?.profilePicture || "https://github.com/shadcn.png"}
+          />
+          <AvatarFallback>U</AvatarFallback>
+        </Avatar>
+      ),
+      text: "Profile",
+    },
+    { icons: <LogOut size={22} />, text: "Logout" },
+  ];
 
   return (
     <>
       {/* DESKTOP SIDEBAR */}
-      <div className="hidden md:flex fixed top-0 left-0 z-10 px-4 border-r border-gray-300 w-[20%] lg:w-[16%] h-screen bg-white">
+      <div className="hidden md:flex fixed top-0 left-0 h-screen z-20 border-r bg-white border-gray-200 w-[18%] lg:w-[15%] px-4 py-4">
         <div className="flex flex-col w-full">
-          <div className="flex items-center justify-center w-full mb-3 p-5 bg-gray-100">
-            <h1 className="my-8 pl-3 font-bold text-xl">LOGO</h1>
+
+          {/* Logo */}
+          <div className="flex items-center gap-2 justify-center bg-gray-50 p-3 rounded-md mb-6">
+            <h1 className="text-xl font-bold">LOGO</h1>
             <img
-              src="https://img.freepik.com/premium-vector/instagram-vector-social-media-icon_459124-558.jpg?semt=ais_hybrid&w=740&q=80"
+              src="https://img.freepik.com/premium-vector/instagram-vector-social-media-icon_459124-558.jpg"
               alt="logo"
-              height={50}
-              width={50}
+              className="w-8 h-8 rounded"
             />
           </div>
 
-          <div>
+          {/* Sidebar Items */}
+          <div className="flex flex-col gap-1">
             {sidebarItems.map((item, index) => (
               <div
                 key={index}
                 onClick={() => sidebarHandler(item.text)}
-                className="flex items-center gap-3 hover:bg-gray-100 cursor-pointer rounded-lg p-3 my-3"
+                className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-gray-100 transition-all"
               >
                 {item.icons}
-                <span className="hidden lg:block">{item.text}</span>
+                <span className="hidden lg:block text-[15px]">{item.text}</span>
               </div>
             ))}
           </div>
         </div>
-        <CreatePost open={open} setOpen={setOpen}/>
+
+        {/* Create Post Modal */}
+        <CreatePost open={open} setOpen={setOpen} />
       </div>
 
       {/* MOBILE BOTTOM NAVBAR */}
-      <div className="md:hidden fixed  bottom-0 left-0 w-full z-20 bg-white border-t border-gray-300 flex justify-around py-3">
+      <div className="md:hidden fixed bottom-0 left-0 w-full z-20 bg-white border-t border-gray-300 flex justify-around py-2 shadow-md">
+        {/* .filter(item => ["Home", "Search", "Explore", "Messages", "Create"].includes(item.text)) */}
         {sidebarItems.slice(0, 5).map((item, index) => (
           <div
             key={index}
             onClick={() => sidebarHandler(item.text)}
-            className="flex flex-col items-center text-sm cursor-pointer overflow-auto"
+            className="flex flex-col items-center gap-1 cursor-pointer"
           >
             {item.icons}
           </div>
