@@ -251,45 +251,54 @@ export const getCommentsOfPost = async (req, res) => {
 export const bookmarkPost = async (req, res) => {
   try {
     const postId = req.params.id;
-    const authorId = req.id;
+    const userId = req.id;
 
     const post = await Post.findById(postId);
-
     if (!post) {
       return res.status(404).json({
-        status: 0,
         success: false,
-        message: "No Post Found",
+        message: "Post not found",
       });
     }
 
-    const user = await User.findById(authorId);
+    const user = await User.findById(userId);
 
-    if (user.bookmarks.includes(post._id)) {
-      //already bookmark so it will unbookmark
-      await user.updateOne({ $pull: { bookmarks: post._id } });
-      await user.save();
+    let updatedUser;
+
+    if (user.bookmarks.includes(postId)) {
+      // Remove bookmark   //already bookmark so it will unbookmark
+      updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $pull: { bookmarks: postId } },
+        { new: true }
+      );
+
       return res.status(200).json({
-        status: 1,
         success: true,
         type: "unsaved",
-        message: "Post Remove from Bookmark",
+        message: "Removed from bookmarks",
+        data: updatedUser,
       });
     } else {
-      //make bookmark post
-      await user.updateOne({ $push: { bookmarks: post._id } });
-      await user.save();
+      // Add bookmark //make bookmark post
+      updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $push: { bookmarks: postId } },
+        { new: true }
+      ).populate('bookmarks').lean();
+
       return res.status(200).json({
-        status: 1,
         success: true,
         type: "saved",
-        message: "Post added into Bookmark",
+        message: "Added to bookmarks",
+        data: updatedUser,
       });
     }
   } catch (error) {
     console.log(error);
   }
 };
+
 
 export const deletePost = async (req, res) => {
   try {

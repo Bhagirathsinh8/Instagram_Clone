@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import React, {  useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
-import { Bookmark, MessageCircle, MoreHorizontal, Send } from "lucide-react";
+import {
+  Bookmark,
+  BookmarkX,
+  MessageCircle,
+  MoreHorizontal,
+  Send,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import CommentDialog from "./CommentDialog";
@@ -11,6 +17,7 @@ import axios from "axios";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
 import { Badge } from "./ui/badge";
 import { ROUTES } from "@/utils/constant";
+import { setAuthUser } from "@/redux/authSlice";
 
 const Post = ({ post }) => {
   const [text, setText] = useState("");
@@ -23,10 +30,12 @@ const Post = ({ post }) => {
 
   const [liked, setLiked] = useState(post.likes.includes(user?._id));
   const [postLike, setPostLike] = useState(post.likes.length);
+  const [bookmarked, setBookmarked] = useState(
+    user?.bookmarks?.includes(post?._id)
+  );
 
   const updatedPost = posts.find((p) => p._id === post._id) || post;
   const comment = updatedPost.comments; // always fresh from Redux
-
   const changeEventHandler = (e) => {
     const inputText = e.target.value;
     setText(inputText.trim() ? inputText : "");
@@ -51,10 +60,14 @@ const Post = ({ post }) => {
     }
   };
 
+  //LIKE or UNLIKE POST
   const likeOrDislikeHandler = async () => {
     try {
       const action = liked ? "dislike" : "like";
-      const url = action === "like" ? ROUTES.LIKE_POST(post?._id) : ROUTES.DISLIKE_POST(post?._id);
+      const url =
+        action === "like"
+          ? ROUTES.LIKE_POST(post?._id)
+          : ROUTES.DISLIKE_POST(post?._id);
 
       const res = await axios.put(
         // `http://localhost:5000/api/post/${action}/${post?._id}`,
@@ -102,7 +115,7 @@ const Post = ({ post }) => {
 
         // Update Redux store only
         const updatedPostData = posts.map((p) =>
-          p._id === post._id
+          p?._id === post?._id
             ? { ...p, comments: [...p.comments, newComment] }
             : p
         );
@@ -117,6 +130,33 @@ const Post = ({ post }) => {
     }
   };
 
+  //Add Bookmark
+  const bookmarkHandler = async () => {
+    const currentlyBookmarked = bookmarked; // read local UI state
+    try {
+
+      // optimistic UI update
+      setBookmarked(!currentlyBookmarked);
+
+      const res = await axios.put(
+        `http://localhost:5000/api/post/bookmark/${post?._id}`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (res.data.success) {
+        const updatedUser = res.data.data;
+        dispatch(setAuthUser(updatedUser));
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      setBookmarked(currentlyBookmarked);
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  };
+
   return (
     <div className="my-8 w-full max-w-sm mx-auto">
       <div className="flex items-center justify-between">
@@ -126,8 +166,8 @@ const Post = ({ post }) => {
             <AvatarFallback>BN</AvatarFallback>
           </Avatar>
           <div className="flex items-center gap-4">
-            <h1>{post.author?.username}</h1>
-            {user._id === post.author?._id && (
+            <h1>{post?.author?.username}</h1>
+            {user?._id === post.author?._id && (
               <Badge variant={"secondary"}>Author</Badge>
             )}
           </div>
@@ -195,8 +235,17 @@ const Post = ({ post }) => {
           />
           <Send className="cursor-pointer hover:text-gray-600" />
         </div>
-
-        <Bookmark className="cursor-pointer hover:text-gray-600" />
+        {bookmarked ? (
+          <Bookmark
+            onClick={bookmarkHandler}
+            className="cursor-pointer fill-black hover:text-black"
+          />
+        ) : (
+          <Bookmark
+            onClick={bookmarkHandler}
+            className="cursor-pointer hover:text-gray-600"
+          />
+        )}
       </div>
 
       <span className="font-normal block mb-2 ">{postLike} likes</span>

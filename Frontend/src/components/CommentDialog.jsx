@@ -24,7 +24,7 @@ const CommentDialog = ({ open, setOpen }) => {
     useEffect(() => {
     if (selectedPost) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setComment(selectedPost.comments);
+      setComment(selectedPost?.comments);
     }
   }, [selectedPost]);
 
@@ -57,7 +57,7 @@ const CommentDialog = ({ open, setOpen }) => {
 
         // Update Redux store
         const updatedPostData = posts.map((p) =>
-          p._id === selectedPost._id ? { ...p, comments: updatedCommentData } : p
+          p?._id === selectedPost?._id ? { ...p, comments: updatedCommentData } : p
         );
 
         dispatch(setPosts(updatedPostData));
@@ -102,7 +102,7 @@ const CommentDialog = ({ open, setOpen }) => {
                   <span className="text-gray-600 text-xs">Good</span>
                 </div>
                   <div className="flex items-center gap-4 ">
-            { user._id === selectedPost?.author?._id && <Badge variant={"secondary"}>Author</Badge> }
+            { user?._id === selectedPost?.author?._id && <Badge variant={"secondary"}>Author</Badge> }
           </div>
               </div>
               <Dialog>

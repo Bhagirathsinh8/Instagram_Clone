@@ -27,5 +27,4 @@ export const models = {
   COMMENT: "Comment",
   CONVERSATION: "Conversation",
   MESSAGE: "Message",
-  BOOKMARKS: "Bookmarks"
 };
