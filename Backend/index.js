@@ -7,8 +7,9 @@ dotenv.config({ quiet: true });
 
 import allRoutes from "./src/routes/index.js";
 import { serverConfig } from "./src/utils/constant.js";
+import { app,server } from "./src/socket/socket.js";
 
-const app = express();
+// const app = express();
 const PORT = serverConfig.PORT;
 
 // middleware
@@ -16,7 +17,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
 const corsOption = {
-  origin: serverConfig.FRONTEND_URL || "http://localhost:5173",
+  origin: [serverConfig.FRONTEND_URL, "http://localhost:5173" , "https://5x8r3p4w-5173.inc1.devtunnels.ms","https://5x8r3p4w-5000.inc1.devtunnels.ms"],
   credentials: true,
 };
 app.use(cors(corsOption));
@@ -36,6 +37,6 @@ app.get("/", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Instagram Server Running on Port ${PORT}`);
 });

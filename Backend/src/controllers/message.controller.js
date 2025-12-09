@@ -1,5 +1,6 @@
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
+import { getReceiverSocketId ,io} from "../socket/socket.js";
 
 //For Chating
 
@@ -33,20 +34,22 @@ export const sendMessage = async (req, res) => {
     conversation.messages.push(newMessage._id);
     await conversation.save();
 
-     //Implement Socket IO for Realtime Data Transfer
+    //Implement Socket IO for Realtime Data Transfer
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
 
     return res.status(201).json({
       success: true,
       message: "Message sent successfully",
       data: newMessage,
     });
-
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Server error" });
   }
 };
-
 
 export const getMessge = async (req, res) => {
   try {
@@ -54,23 +57,24 @@ export const getMessge = async (req, res) => {
     const receiverId = req.params.id;
 
     const conversation = await Conversation.findOne({
-        participants:{$all:[senderId,receiverId]}
-    }).populate('messages').lean();
+      participants: { $all: [senderId, receiverId] },
+    })
+      .populate("messages")
+      .lean();
 
-    if(!conversation){
-        return res.status(200).json({
-            status:1,
-            success:true,
-            message:[]
-        });    
+    if (!conversation) {
+      return res.status(200).json({
+        status: 1,
+        success: true,
+        data: [],
+      });
     }
-     return res.status(200).json({
-            status:1,
-            success:true,
-            message:"Get Messages Successfully",
-            data:conversation?.messages
-        });    
-
+    return res.status(200).json({
+      status: 1,
+      success: true,
+      message: "Get Messages Successfully",
+      data: conversation?.messages,
+    });
   } catch (error) {
     console.log(error);
   }

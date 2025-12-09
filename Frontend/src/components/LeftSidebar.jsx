@@ -60,6 +60,9 @@ function LeftSidebar() {
       case "Profile":
         navigate(PATH.PROFILE(user?._id));
         break;
+        case "Messages" :
+        navigate(PATH.MESSAGES_PAGE);
+        break;
       default:
         break;
     }

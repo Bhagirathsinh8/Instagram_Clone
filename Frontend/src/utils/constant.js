@@ -1,9 +1,10 @@
 // const BASE_API_URL = "http://localhost:5000/api";
-const BASE_API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// const BASE_API_URL = "https://5x8r3p4w-5000.inc1.devtunnels.ms/api";
+const BASE_API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export const ROUTES = {
   BASE: BASE_API_URL,
+  BASE_SOCKET : 'http://localhost:5000',
 
   //Authentication Endpoints
   AUTH: `${BASE_API_URL}/auth`,
@@ -30,6 +31,10 @@ export const ROUTES = {
    // Post like/dislike
   LIKE_POST:   (postId) => `${BASE_API_URL}/post/like/${postId}`,
   DISLIKE_POST:(postId) => `${BASE_API_URL}/post/dislike/${postId}`,
+
+  //Messages
+  SEND_MESSAGE: (receiverId) => `${BASE_API_URL}/message/send/${receiverId}`,
+  GET_ALL_MESSAGE:(receiverId) => `${BASE_API_URL}/message/all/${receiverId}`,
 };
 
 //Navigation Route Path
@@ -42,4 +47,7 @@ export const PATH = {
   //USER
   PROFILE: (userId) => `/profile/${userId}`,
   EDIT_PROFILE :"/account/edit",
+
+  //Pages
+  MESSAGES_PAGE :'/chat'
 };
