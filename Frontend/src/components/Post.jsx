@@ -139,7 +139,7 @@ const Post = ({ post }) => {
       setBookmarked(!currentlyBookmarked);
 
       const res = await axios.put(
-        `http://localhost:5000/api/post/bookmark/${post?._id}`,
+        ROUTES.BOOKMARK_UNBOOKMARK_POST(post?._id),
         {},
         {
           withCredentials: true,

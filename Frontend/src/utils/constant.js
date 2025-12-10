@@ -35,6 +35,12 @@ export const ROUTES = {
   //Messages
   SEND_MESSAGE: (receiverId) => `${BASE_API_URL}/message/send/${receiverId}`,
   GET_ALL_MESSAGE:(receiverId) => `${BASE_API_URL}/message/all/${receiverId}`,
+
+  //Follow/Unfollow
+  FOLLOW_USER :(userId) => `${BASE_API_URL}/user/followorunfollow/${userId}`,
+
+  //Bookmark/Unbookmark
+  BOOKMARK_UNBOOKMARK_POST :   (postId) => `${BASE_API_URL}/post/bookmark/${postId}`,
 };
 
 //Navigation Route Path
