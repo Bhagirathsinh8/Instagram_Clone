@@ -154,3 +154,71 @@ export const followOrUnfollow = async (req, res) => {
     console.log(error);
   }
 };
+
+// export const getAllFollowers = async (req, res) => {
+//   try {
+//     const userId = req.id; // logged-in user id
+
+//     const user = await User.findById(userId)
+//       .populate("followers", "name email avatar") // select fields to return
+//       .select("followers");
+
+//     if (!user) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "User not found" });
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       followers: user.followers,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res
+//       .status(500)
+//       .json({ success: false, message: "Server error" });
+//   }
+// };
+
+
+export const getAllFollowers = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const search = req.query.search?.trim() || "";
+
+    // Fetch the user and populate followers
+    const user = await User.findById(userId)
+      .populate({
+        path: "following",
+        select: "name username email profilePhoto",
+        match: search
+          ? {
+              $or: [
+                { name: { $regex: search, $options: "i" } },
+                { username: { $regex: search, $options: "i" } },
+              ],
+            }
+          : {}, // if no search, return all
+      })
+      .select("following");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Get Followers List Successfully",
+      data: user.following || [],
+    });
+  } catch (error) {
+    console.error("Followers Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};

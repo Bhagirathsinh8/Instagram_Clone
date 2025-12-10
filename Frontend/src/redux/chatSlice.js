@@ -4,7 +4,8 @@ const chatSlice = createSlice({
     name:"chat",
     initialState:{
         onlineUsers:[],
-        messages:[]
+        messages:[],
+        currentFollowingUsers :[]
     },
     reducers:{
         setOnlineUsers:(state,action) =>{
@@ -12,9 +13,12 @@ const chatSlice = createSlice({
         },
         setMessages:(state,action) =>{
             state.messages = action.payload;
-        }
+        },
+        setCurrentFollowingUsers: (state, action) => {
+      state.currentFollowingUsers = action.payload;
+    },
     }
 });
 
-export const {setOnlineUsers,setMessages} = chatSlice.actions;
+export const {setOnlineUsers,setMessages,setCurrentFollowingUsers} = chatSlice.actions;
 export default chatSlice.reducer;
