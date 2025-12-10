@@ -64,23 +64,26 @@ export const editProfile = async (req, res) => {
 
 export const getSuggestedUser = async (req, res) => {
   try {
-    const suggestedUser = await User.find({ _id: { $ne: req.id } }).select(
-      "-password"
-    );
+    // get Current User (self)
+    const currentUser = await User.findById(req.id);
 
-    if (!suggestedUser) {
-      return res.status(400).json({
-        success: false,
-        message: "Currently do not have any User",
-      });
-    }
+    // IDs to exclude: Current user + current users you already follow
+    const excludeIds = [req.id, ...currentUser.following];
+
+    // Find users except these IDs
+    const suggestedUsers = await User.find({ _id: { $nin: excludeIds } })
+      .select("-password")
+      .limit(10); // optional
+
     return res.status(200).json({
       success: true,
-      message: "Get Suggested User Successfull",
-      data: suggestedUser,
+      message: "Suggested users fetched successfully",
+      data: suggestedUsers,
     });
+
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 

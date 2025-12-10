@@ -64,7 +64,7 @@ function Login() {
   if(user){
     navigate(PATH.HOME)
   }
- },[]);
+ },[user,navigate]);
 
   return (
     <div className="flex items-center w-screen h-screen justify-center">

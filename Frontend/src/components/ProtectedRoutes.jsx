@@ -10,7 +10,7 @@ function ProtectedRoutes({children}) {
         if(!user){
             navigate(PATH.LOGIN)
         }
-    },[])
+    },[user,navigate])
   return (
     <>
     {children}
