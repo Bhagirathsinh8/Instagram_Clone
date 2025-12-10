@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -6,7 +6,7 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from "@/redux/authSlice";
 import { PATH, ROUTES } from "@/utils/constant";
 
@@ -19,6 +19,7 @@ function Login() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const {user} = useSelector(store=>store.auth);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -58,6 +59,12 @@ function Login() {
       setLoading(false);
     }
   };
+
+ useEffect(()=>{
+  if(user){
+    navigate(PATH.HOME)
+  }
+ },[]);
 
   return (
     <div className="flex items-center w-screen h-screen justify-center">

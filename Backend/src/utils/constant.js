@@ -11,7 +11,7 @@ export const serverConfig = {
 
 export const db = {
   MONGO_DB_URL:
-    process.env.MONGO_DB_URL || "mongodb://localhost:27017/job_portal",
+    process.env.MONGO_DB_URL || "mongodb://localhost:27017/instagram_clone",
 };
 
 export const status = {

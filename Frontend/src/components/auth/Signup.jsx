@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -7,6 +7,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { PATH, ROUTES } from "@/utils/constant";
+import { useSelector } from "react-redux";
 
 function Signup() {
   const [input, setInput] = useState({
@@ -16,6 +17,7 @@ function Signup() {
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+    const {user} = useSelector(store=>store.auth)
 
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -52,6 +54,12 @@ function Signup() {
       setLoading(false);
     }
   };
+
+   useEffect(()=>{
+    if(user){
+      navigate(PATH.HOME)
+    }
+   },[]);
 
   return (
   <div className="flex items-center justify-center min-h-screen px-4">
