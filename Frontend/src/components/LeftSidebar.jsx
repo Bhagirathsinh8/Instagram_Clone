@@ -17,13 +17,20 @@ import { setAuthUser } from "@/redux/authSlice";
 import CreatePost from "./CreatePost";
 import { setPosts, setSelectedPost } from "@/redux/postSlice";
 import { PATH, ROUTES } from "@/utils/constant";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Button } from "./ui/button";
+import { clearNotifications } from "@/redux/rtnSlice";
 
 function LeftSidebar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((store) => store.auth);
+  const { likeNotification } = useSelector(
+    (store) => store.realTimeNotification
+  );
 
   const [open, setOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   // Logout handler
   const logoutHandler = async () => {
@@ -60,7 +67,7 @@ function LeftSidebar() {
       case "Profile":
         navigate(PATH.PROFILE(user?._id));
         break;
-        case "Messages" :
+      case "Messages":
         navigate(PATH.MESSAGES_PAGE);
         break;
       default:
@@ -82,7 +89,7 @@ function LeftSidebar() {
           <AvatarImage
             src={user?.profilePhoto || "https://github.com/shadcn.png"}
           />
-          <AvatarFallback>U</AvatarFallback>
+          <AvatarFallback>BN</AvatarFallback>
         </Avatar>
       ),
       text: "Profile",
@@ -95,7 +102,6 @@ function LeftSidebar() {
       {/* DESKTOP SIDEBAR */}
       <div className="hidden md:flex fixed top-0 left-0 h-screen z-20 border-r bg-white border-gray-200 w-[18%] lg:w-[15%] px-4 py-4">
         <div className="flex flex-col w-full">
-
           {/* Logo */}
           <div className="flex items-center gap-2 justify-center bg-gray-50 p-3 rounded-md mb-6">
             <h1 className="text-xl font-bold">LOGO</h1>
@@ -108,16 +114,81 @@ function LeftSidebar() {
 
           {/* Sidebar Items */}
           <div className="flex flex-col gap-1">
-            {sidebarItems.map((item, index) => (
-              <div
-                key={index}
-                onClick={() => sidebarHandler(item.text)}
-                className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-gray-100 transition-all"
-              >
-                {item.icons}
-                <span className="hidden lg:block text-[15px]">{item.text}</span>
-              </div>
-            ))}
+            {sidebarItems.map((item, index) => {
+              const isNotification = item.text === "Notifications";
+
+              // show only likes from OTHER users
+              const otherUserLikes = likeNotification.filter(
+                (n) => n.userId !== user._id
+              );
+
+              return (
+                <div
+                  key={index}
+                  onClick={() => sidebarHandler(item.text)}
+                  className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-gray-100 transition-all"
+                >
+                  {/* ICON + BADGE WRAPPER */}
+                  <div className="relative">
+                    {item.icons}
+
+                    {/* BADGE ONLY IF OTHER USERS LIKED */}
+                    {isNotification && otherUserLikes.length > 0 && (
+                      <Popover
+                        open={isNotifOpen}
+                        onOpenChange={(open) => {
+                          setIsNotifOpen(open);
+
+                          if (!open) {
+                            dispatch(clearNotifications());
+                          }
+                        }}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            size="icon"
+                            className="absolute -top-2 -right-2 rounded-full h-5 w-5 p-0 bg-red-500 text-white flex items-center justify-center"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {otherUserLikes.length}
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="w-64">
+                          <div className="flex flex-col gap-3">
+                            {otherUserLikes.map((notification) => (
+                              <div
+                                key={notification.userId}
+                                className="flex items-center gap-2 my-2"
+                              >
+                                <Avatar>
+                                  <AvatarImage
+                                    src={notification.userDetails?.profilePhoto}
+                                  />
+                                  <AvatarFallback>BN</AvatarFallback>
+                                </Avatar>
+
+                                <p className="text-sm">
+                                  <span className="font-bold">
+                                    {notification.userDetails?.username}
+                                  </span>{" "}
+                                  liked your post
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </div>
+
+                  {/* TEXT */}
+                  <span className="hidden lg:block text-[15px]">
+                    {item.text}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
